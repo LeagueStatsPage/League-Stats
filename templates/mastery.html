@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>League Matchup</title>
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <!-- Add CSS Styling here -->
+</head>
+<body>
+    <!-- Title of website -->
+    <h1>League Matchup</h1>
+
+            <form id="filterForm">
+                <h2>Filters</h2>    <!-- You don't actually need to choose a region anymore-->
+                <div>
+                    <label for="Region">Region</label>
+                    <select id="Region">
+                        <option>Select a Region</option>
+                        <option>Americas</option>
+                        <option>Asia</option>
+                        <option>Europe</option>
+                    </select>
+                </div>
+                <br>
+            
+                <label for="gameName">Enter your username:</label>
+                <input type="text" id="gameName" name="username" placeholder="Username">
+
+                <label for="tagLine">#</label>
+                <input type="text" id="tagLine" name="tagLine" placeholder="tag">
+                <button type="button" id="submitButton">Submit</button>
+            </form>
+
+            <br>
+            <h3>Profile Information</h3>
+            <p id="displayUsername">Username: </p>
+            <p id="displayPUUID">PUUID: </p>
+
+        
+        <!-- Including the JavaScript file-->
+
+</body>
+</html>
