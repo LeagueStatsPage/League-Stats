@@ -20,19 +20,20 @@ def submit_data():
 
     gameName = data["username"].replace(" ", "%20")
     tagLine = data["tagline"]
-    api_url = f"https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}?api_key={api_key}"
+    region = data["region"].lower()
+    numMatches = data["num"]
 
-    print(api_url)
+    api_url = f"https://{region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}?api_key={api_key}"
 
-    api_response = requests.get(api_url)
-    if api_response.status_code == 200:
-        # Assuming the API returns JSON data
-        api_data = api_response.json()
-        
-        # Send the API data back to the client
-        return jsonify({"status": "success", "api_data": api_data})
+    account_response = requests.get(api_url)
+
+    if account_response.status_code == 200: #If the account is fetched
+        account_data = account_response.json()
+
+
+        return jsonify({"status": "success", "api_data": account_data})
     else:
-        return jsonify({"status": "error", "message": "Failed to retrieve data from the API"}), api_response.status_code
+        return jsonify({"status": "error", "message": "Failed to retrieve data from the API"}), account_response.status_code
 
 if __name__ == '__main__':
     app.run(debug=True)

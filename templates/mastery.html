@@ -12,7 +12,7 @@
     <h1>League Matchup</h1>
 
             <form id="filterForm">
-                <h2>Filters</h2>    <!-- You don't actually need to choose a region anymore-->
+                <h2>Filters</h2> 
                 <div>
                     <label for="Region">Region</label>
                     <select id="Region">
@@ -29,13 +29,19 @@
 
                 <label for="tagLine">#</label>
                 <input type="text" id="tagLine" name="tagLine" placeholder="tag">
+
+
+                <br>
+                <br>
+                <label for="numMatches">Enter number of matches</label>
+                <input type="number" id="numMatches" name="numMatches" placeholder="Max: 100" min="1" max="100">
+
                 <button type="button" id="submitButton">Submit</button>
             </form>
 
             <br>
             <h3>Profile Information</h3>
-            <p id="displayUsername">Username: </p>
-            <p id="displayPUUID">PUUID: </p>
+            <p id="response"></p>
 
         
         <!-- Including the JavaScript file-->
