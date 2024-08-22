@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function() {
         })
         .then(response => response.json())
         .then(data => {
-
+            console.log(data);
             data = data["api_data"];
 
             const usernameElement = document.getElementById("response");
