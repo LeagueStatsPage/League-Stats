@@ -34,12 +34,22 @@ def submit_data():
         match_id_response = requests.get(match_id_url)
         match_id_data = match_id_response.json()
 
-        
+        kills = 0
+        deaths = 0
+        damage = 0
+
         for id in match_id_data:
             match_detail_url = f"https://{region}.api.riotgames.com/lol/match/v5/matches/{id}?api_key={api_key}"
             individual_match_data = requests.get(match_detail_url).json()
             inGameOrder = individual_match_data["metadata"]["participants"].index(f"{puuid}")
-            print(inGameOrder)
+            player = individual_match_data["info"]["participants"][7]
+            kills = kills + player["kills"]
+            deaths = deaths + player["deaths"]
+            damage = damage + player["trueDamageDealtToChampions"]
+
+        print(kills)
+        print(deaths)
+        print(damage)
 
         """for key, value in match_id_data.items():
             if key in account_data and isinstance(account_data[key], dict) and isinstance(value, dict):
