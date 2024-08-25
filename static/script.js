@@ -32,13 +32,14 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(response => response.json())
         .then(data => {
             console.log(data);
-            data = data["api_data"];
 
             const usernameElement = document.getElementById("response");
-            //const puuidElement = document.getElementById("displayPUUID");
 
-            if (usernameElement) usernameElement.textContent = `Username: ${data["gameName"]}#${data["tagLine"]}`;
-           // if (puuidElement) puuidElement.textContent = `PUUID: ${data["puuid"]}`;
+            if (usernameElement) 
+                var accountData = "Success<br> " + `Username: ${data["api_data"]["gameName"]}#${data["api_data"]["tagLine"]}`; 
+                var gameData = `Total Kills: ${data["game"][numMatches]["total kills"]} \n Total Deaths: ${data["game"][numMatches]["total deaths"]} \n Total Damage dealt to champions: ${data["game"][numMatches]["total damage"]}`;
+
+                usernameElement.innerHTML = accountData + "<br>" + gameData;
         })
         .catch((error) => {
             document.getElementById("response").textContent = "Could not find account";

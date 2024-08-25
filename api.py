@@ -3,13 +3,13 @@ from dotenv import load_dotenv
 import os
 import requests
 from flask import Flask, request, jsonify, render_template
-from flask_cors import CORS
+from io import BytesIO
+import base64
 
 load_dotenv() 
 api_key = os.getenv('API_KEY')
 
 app = Flask(__name__)
-CORS(app)
 
 @app.route('/')
 def index():
@@ -40,21 +40,65 @@ def submit_data():
         match_id_response = requests.get(match_id_url)
         match_id_data = match_id_response.json()
 
-        kills = 0
-        deaths = 0
-        damage = 0
+        games = []
+        totalK = 0
+        totalD = 0
+        totalDMG = 0
+
+        dict = {}
 
         with ThreadPoolExecutor(max_workers=10) as executor:
-            futures = [executor.submit(fetch_match_data, match_id, api_key, region) for match_id in match_id_data]
-            for future in as_completed(futures):
+
+            for match_id in match_id_data:
+                future = executor.submit(fetch_match_data, match_id, api_key, region)
+                dict[future] = match_id
+
+
+
+            for match_id in match_id_data:
+                future = next(f for f, m_id in dict.items() if m_id == match_id)
                 individual_match_data = future.result()
+
                 inGameOrder = individual_match_data["metadata"]["participants"].index(f"{puuid}")
                 player = individual_match_data["info"]["participants"][inGameOrder]
-                kills += player["kills"]
-                deaths += player["deaths"]
-                damage += player["trueDamageDealtToChampions"]
 
-        return jsonify({"status": "success", "api_data": account_data, "kills": kills, "deaths": deaths, "damage": damage})
+                kills = player["kills"]
+                deaths = player["deaths"]
+                assists = player["assists"]
+                damage = player["totalDamageDealtToChampions"]
+
+                totalK += kills
+                totalD += deaths
+                totalDMG += damage
+
+                champion = player["championName"]
+                image_response = requests.get(f"https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/{champion}.png")
+                image = BytesIO(image_response.content)
+                img_base64 = base64.b64encode(image.getvalue()).decode('utf-8')
+
+                game_data = {
+                    "kills": kills,
+                    "deaths": deaths,
+                    "assists": assists,
+                    "damage": damage,
+                    "champ image": {
+                        "champion": champion,
+                        "image base64": img_base64
+                    }
+                }
+        
+                games.append(game_data)
+
+
+        total_numbers = {
+            "total kills": totalK,
+            "total deaths": totalD,
+            "total damage": totalDMG
+        }
+
+        games.append(total_numbers)
+
+        return jsonify({"status": "success", "api_data": account_data, "game": games})
     else:
         return jsonify({"status": "error", "message": "Failed to retrieve data from the API"}), account_response.status_code
 
