@@ -21,7 +21,6 @@ document.addEventListener("DOMContentLoaded", function() {
             num: numMatches
         };
 
-
         fetch('/submit-data', {
             method: 'POST',
             headers: {
@@ -32,13 +31,30 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(response => response.json())
         .then(data => {
             console.log(data);
-            data = data["api_data"];
+            const matchDataElement = document.getElementById("matchData");
+            matchDataElement.innerHTML = ""; // Clear previous data
 
-            const usernameElement = document.getElementById("response");
-            //const puuidElement = document.getElementById("displayPUUID");
+            data["game"].forEach(game => {
+                // Create a new div for each match
+                const matchDiv = document.createElement("div");
+                matchDiv.className = "match";
 
-            if (usernameElement) usernameElement.textContent = `Username: ${data["gameName"]}#${data["tagLine"]}`;
-           // if (puuidElement) puuidElement.textContent = `PUUID: ${data["puuid"]}`;
+                // Champion Icon
+                const champImage = document.createElement("img");
+                champImage.src = `data:image/png;base64,${game["champ image"]["image base64"]}`;
+                matchDiv.appendChild(champImage);
+
+                // Kills, Deaths, Assists
+                const stats = document.createElement("p");
+                stats.textContent = `Kills: ${game["kills"]}, Deaths: ${game["deaths"]}, Assists: ${game["assists"]}`;
+                matchDiv.appendChild(stats);
+
+                // Append match data to the matchDataElement
+                matchDataElement.appendChild(matchDiv);
+            });
+
+            const responseElement = document.getElementById("response");
+            responseElement.textContent = `Username: ${data["gameName"]}#${data["tagLine"]}`;
         })
         .catch((error) => {
             document.getElementById("response").textContent = "Could not find account";
