@@ -31,30 +31,14 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(response => response.json())
         .then(data => {
             console.log(data);
-            const matchDataElement = document.getElementById("matchData");
-            matchDataElement.innerHTML = ""; // Clear previous data
 
-            data["game"].forEach(game => {
-                // Create a new div for each match
-                const matchDiv = document.createElement("div");
-                matchDiv.className = "match";
+            const usernameElement = document.getElementById("response");
 
-                // Champion Icon
-                const champImage = document.createElement("img");
-                champImage.src = `data:image/png;base64,${game["champ image"]["image base64"]}`;
-                matchDiv.appendChild(champImage);
+            if (usernameElement) 
+                var accountData = "Success<br> " + `Username: ${data["api_data"]["gameName"]}#${data["api_data"]["tagLine"]}`; 
+                var gameData = `Total Kills: ${data["game"][numMatches]["total kills"]} \n Total Deaths: ${data["game"][numMatches]["total deaths"]} \n Total Damage dealt to champions: ${data["game"][numMatches]["total damage"]}`;
 
-                // Kills, Deaths, Assists
-                const stats = document.createElement("p");
-                stats.textContent = `Kills: ${game["kills"]}, Deaths: ${game["deaths"]}, Assists: ${game["assists"]}`;
-                matchDiv.appendChild(stats);
-
-                // Append match data to the matchDataElement
-                matchDataElement.appendChild(matchDiv);
-            });
-
-            const responseElement = document.getElementById("response");
-            responseElement.textContent = `Username: ${data["gameName"]}#${data["tagLine"]}`;
+                usernameElement.innerHTML = accountData + "<br>" + gameData;
         })
         .catch((error) => {
             document.getElementById("response").textContent = "Could not find account";
