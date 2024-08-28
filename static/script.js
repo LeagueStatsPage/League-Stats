@@ -1,24 +1,41 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // Function to send data to the backend
-    function sendData() {
+    // Toggle Dark Mode
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    darkModeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+    });
 
-        var numMatches = document.getElementById("numMatches").value;
+    // Submit Button Event Listener
+    const submitButton = document.getElementById('submitButton');
+    submitButton.addEventListener('click', () => {
+        fetchMatchData();
+    });
 
-        if (numMatches > 100 || numMatches < 1){
-            document.getElementById("response").textContent = "Invalid number of matches";
-            throw new Error("Given input is not within range");
+    function fetchMatchData() {
+        const gameName = document.getElementById('gameName').value.trim();
+        const tagLine = document.getElementById('tagLine').value.trim();
+        const numMatches = document.getElementById('numMatches').value.trim();
+        const region = document.getElementById('Region').value.trim();
+        const responseElement = document.getElementById('response');
+
+        // Input Validation
+        if (!gameName || !tagLine || !numMatches || !region) {
+            responseElement.textContent = 'Please fill in all fields.';
+            return;
         }
 
-        if (document.getElementById("Region").value == "Select a Region"){
-            document.getElementById("response").textContent = "Please choose a region";
-            throw new Error("No region chosen");
+        if (numMatches < 1 || numMatches > 100) {
+            responseElement.textContent = 'Number of matches must be between 1 and 100.';
+            return;
         }
 
-        var dataToSend = {
-            region: document.getElementById("Region").value || "default",
-            username: document.getElementById("gameName").value || "default",
-            tagline: document.getElementById("tagLine").value || "default",
-            num: numMatches
+        responseElement.textContent = 'Fetching data...';
+
+        const requestData = {
+            region: region,
+            username: gameName,
+            tagline: tagLine,
+            num: parseInt(numMatches)
         };
 
         fetch('/submit-data', {
@@ -26,26 +43,79 @@ document.addEventListener("DOMContentLoaded", function() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(dataToSend)  // Send data as JSON
+            body: JSON.stringify(requestData)
         })
         .then(response => response.json())
         .then(data => {
-            console.log(data);
-
-            const usernameElement = document.getElementById("response");
-
-            if (usernameElement) 
-                var accountData = "Success<br> " + `Username: ${data["api_data"]["gameName"]}#${data["api_data"]["tagLine"]}`; 
-                var gameData = `Total Kills: ${data["game"][numMatches]["total kills"]} \n Total Deaths: ${data["game"][numMatches]["total deaths"]} \n Total Damage dealt to champions: ${data["game"][numMatches]["total damage"]}`;
-
-                usernameElement.innerHTML = accountData + "<br>" + gameData;
+            if (data.status === 'success') {
+                displayStats(data.game);
+                displayMatchData(data.game);
+                responseElement.textContent = '';
+            } else {
+                responseElement.textContent = data.message || 'An error occurred while fetching data.';
+            }
         })
-        .catch((error) => {
-            document.getElementById("response").textContent = "Could not find account";
+        .catch(error => {
+            console.error('Error:', error);
+            responseElement.textContent = 'Failed to fetch data. Please try again later.';
         });
     }
 
-    document.getElementById('submitButton').addEventListener('click', function() {
-        sendData();
-    });
+    function displayStats(gameData) {
+        const totalKillsElement = document.getElementById('totalKills');
+        const totalDeathsElement = document.getElementById('totalDeaths');
+        const totalDamageElement = document.getElementById('totalDamage');
+
+        const totals = gameData[gameData.length - 1];
+
+        totalKillsElement.textContent = totals['total kills'];
+        totalDeathsElement.textContent = totals['total deaths'];
+        totalDamageElement.textContent = totals['total damage'];
+    }
+
+    function displayMatchData(gameData) {
+        const matchDataContainer = document.getElementById('matchData');
+        matchDataContainer.innerHTML = '';
+
+        // Exclude the last element which contains total stats
+        const matches = gameData.slice(0, -1);
+
+        matches.forEach(match => {
+            const matchElement = document.createElement('div');
+            matchElement.classList.add('match');
+
+            const champImage = document.createElement('img');
+            champImage.src = `data:image/png;base64,${match['champ image']['image base64']}`;
+            champImage.alt = match['champ image']['champion'];
+
+            const matchDetails = document.createElement('div');
+            matchDetails.classList.add('match-details');
+
+            const championName = document.createElement('p');
+            championName.innerHTML = `<strong>Champion:</strong> ${match['champ image']['champion']}`;
+
+            const kills = document.createElement('p');
+            kills.innerHTML = `<strong>Kills:</strong> ${match.kills}`;
+
+            const deaths = document.createElement('p');
+            deaths.innerHTML = `<strong>Deaths:</strong> ${match.deaths}`;
+
+            const assists = document.createElement('p');
+            assists.innerHTML = `<strong>Assists:</strong> ${match.assists}`;
+
+            const damage = document.createElement('p');
+            damage.innerHTML = `<strong>Damage:</strong> ${match.damage}`;
+
+            matchDetails.appendChild(championName);
+            matchDetails.appendChild(kills);
+            matchDetails.appendChild(deaths);
+            matchDetails.appendChild(assists);
+            matchDetails.appendChild(damage);
+
+            matchElement.appendChild(champImage);
+            matchElement.appendChild(matchDetails);
+
+            matchDataContainer.appendChild(matchElement);
+        });
+    }
 });

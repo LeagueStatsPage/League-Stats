@@ -4,42 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>League Matchup</title>
-    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
 </head>
 <body>
-    <!-- Title of website -->
+    <!-- Toggle Dark Mode Button -->
+    <button id="darkModeToggle">Toggle Dark Mode</button>
+
+    <!-- Information Menu -->
+    <div id="infoMenu">
+        <h4>Site Information</h4>
+        <p>This site is hosted on the free tier of Render, which means it may experience slower loading times after periods of inactivity.</p>
+        <h4>Don't have a League account? Try...</h4>
+        <p>
+            <strong>Username:</strong> Riot August<br>
+            <strong>Tag:</strong> Kitty<br>
+            <strong>Server:</strong> Americas
+        </p>
+    </div>
+
+    <!-- Title -->
     <h1>League Matchup</h1>
 
     <!-- Form Section -->
     <form id="filterForm">
-        <div>
-            <input type="text" id="gameName" name="username" placeholder="Username">
-            <label for="tagLine">#</label>
-            <input type="text" id="tagLine" name="tagLine" placeholder="Tag">
+        <div class="form-group">
+            <label for="gameName">Username:</label>
+            <input type="text" id="gameName" name="username" placeholder="Enter Username">
         </div>
-        <div>
+        <div class="form-group">
+            <label for="tagLine">Tag:</label>
+            <input type="text" id="tagLine" name="tagLine" placeholder="Enter Tag">
+        </div>
+        <div class="form-group">
             <label for="numMatches">Number of Matches:</label>
             <input type="number" id="numMatches" name="numMatches" placeholder="1-100" min="1" max="100">
         </div>
-        <div>
+        <div class="form-group">
             <label for="Region">Region:</label>
             <select id="Region">
-                <option>Select a Region</option>
+                <option value="">Select a Region</option>
                 <option value="Americas">Americas</option>
                 <option value="Asia">Asia</option>
                 <option value="Europe">Europe</option>
             </select>
         </div>
         <button type="button" id="submitButton">Submit</button>
+        <p id="response"></p>
     </form>
 
-    <!-- Display Area for Match Data -->
-    <div id="matchData">
-        <!-- This is where the match information will be inserted -->
+    <!-- Stats Boxes -->
+    <div id="stats" class="stats-container">
+        <div class="stat-box">
+            <h3>Total Kills</h3>
+            <p id="totalKills">-</p>
+        </div>
+        <div class="stat-box">
+            <h3>Total Deaths</h3>
+            <p id="totalDeaths">-</p>
+        </div>
+        <div class="stat-box">
+            <h3>Total Damage</h3>
+            <p id="totalDamage">-</p>
+        </div>
     </div>
 
-    <!-- Error or Success Message -->
-    <div id="response"></div>
+    <!-- Match Data Display -->
+    <div id="matchData">
+        <!-- Individual match details will be appended here -->
+    </div>
 </body>
 </html>
