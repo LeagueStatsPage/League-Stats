@@ -24,8 +24,8 @@ document.addEventListener("DOMContentLoaded", function() {
             return;
         }
 
-        if (numMatches < 1 || numMatches > 100) {
-            responseElement.textContent = 'Number of matches must be between 1 and 100.';
+        if (numMatches < 1 || numMatches > 50) {
+            responseElement.textContent = 'Number of matches must be between 1 and 50.';
             return;
         }
 

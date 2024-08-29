@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>League Matchup</title>
+    <title>League Stat Checker</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="{{ url_for('static', filename='script.js') }}" defer></script>
 </head>
@@ -24,7 +24,7 @@
     </div>
 
     <!-- Title -->
-    <h1>League Matchup</h1>
+    <h1>League Stats</h1>
 
     <!-- Form Section -->
     <form id="filterForm">
@@ -38,7 +38,7 @@
         </div>
         <div class="form-group">
             <label for="numMatches">Number of Matches:</label>
-            <input type="number" id="numMatches" name="numMatches" placeholder="1-100" min="1" max="100">
+            <input type="number" id="numMatches" name="numMatches" placeholder="1-50" min="1" max="50">
         </div>
         <div class="form-group">
             <label for="Region">Region:</label>

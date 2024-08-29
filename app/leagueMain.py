@@ -1,26 +1,25 @@
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from dotenv import load_dotenv
+from concurrent.futures import ThreadPoolExecutor
 import os
 import requests
-from flask import Flask, request, jsonify, render_template
+from flask import request, jsonify, render_template, Blueprint
 from io import BytesIO
 import base64
 
-load_dotenv() 
 api_key = os.getenv('API_KEY')
 
-app = Flask(__name__)
+main = Blueprint('main', __name__)
 
-@app.route('/')
+@main.route('/')
 def index():
     return render_template('mastery.html')
 
+# Fetches the details for a specific match given match id
 def fetch_match_data(match_id, api_key, region):
     match_detail_url = f"https://{region}.api.riotgames.com/lol/match/v5/matches/{match_id}?api_key={api_key}"
     response = requests.get(match_detail_url)
     return response.json()
 
-@app.route('/submit-data', methods=['POST'])
+@main.route('/submit-data', methods=['POST'])
 def submit_data():
     data = request.json 
 
@@ -36,6 +35,7 @@ def submit_data():
         account_data = account_response.json()
         puuid = account_data["puuid"]
 
+        # Fetches a list of match id's for a player given number of matches and player id
         match_id_url = f"https://{region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?start=0&count={numMatches}&api_key={api_key}"
         match_id_response = requests.get(match_id_url)
         match_id_data = match_id_response.json()
@@ -53,13 +53,15 @@ def submit_data():
                 future = executor.submit(fetch_match_data, match_id, api_key, region)
                 dict[future] = match_id
 
-
-
             for match_id in match_id_data:
                 future = next(f for f, m_id in dict.items() if m_id == match_id)
                 individual_match_data = future.result()
 
-                inGameOrder = individual_match_data["metadata"]["participants"].index(f"{puuid}")
+                try:    #In case the user runs out of api calls midway through calling each match
+                    inGameOrder = individual_match_data["metadata"]["participants"].index(f"{puuid}")
+                except Exception as e:
+                    return jsonify({"status": "error", "message": individual_match_data["status"]["message"]}), individual_match_data["status"]["status_code"]
+                
                 player = individual_match_data["info"]["participants"][inGameOrder]
 
                 kills = player["kills"]
@@ -71,6 +73,7 @@ def submit_data():
                 totalD += deaths
                 totalDMG += damage
 
+                # Fetches the champion the player played and its image and converts it to base 64
                 champion = player["championName"]
                 image_response = requests.get(f"https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/{champion}.png")
                 image = BytesIO(image_response.content)
@@ -86,7 +89,7 @@ def submit_data():
                         "image base64": img_base64
                     }
                 }
-        
+
                 games.append(game_data)
 
 
@@ -99,9 +102,14 @@ def submit_data():
         games.append(total_numbers)
 
         return jsonify({"status": "success", "api_data": account_data, "game": games})
-    else:
+    
+    elif (account_response.status_code == 429): #If user tries to call the Riot API too many times
+        return jsonify({"status": "error", "message": "Too many requests, try again later"}), account_response.status_code
+
+    elif (account_response.status_code == 500):
+        return jsonify({"status": "error", "message": "Internal error with Riot API"}), account_response.status_code
+    
+    else: #If initial account fetching fails
         return jsonify({"status": "error", "message": "Failed to retrieve data from the API"}), account_response.status_code
 
-if __name__ == '__main__':
-    app.run(debug=True)
 
