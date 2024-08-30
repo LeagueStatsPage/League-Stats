@@ -1,3 +1,6 @@
+# Important
+This website spins down when inactive, meaning if the link to this site is clicked during this idle mode, delays can persist for around 50 seconds until site re-enters active mode
+
 # League Stats
 Description
 This web application allows users to enter their League of Legends username, tag, region, and the number of matches to retrieve stats such as kills, deaths, assists, and damage dealt for each match. The application fetches data using the Riot Games API and displays it in an interface with dark mode support.
