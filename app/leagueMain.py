@@ -4,6 +4,7 @@ import requests
 from flask import request, jsonify, render_template, Blueprint
 from io import BytesIO
 import base64
+import time
 
 api_key = os.getenv('API_KEY')
 
@@ -17,6 +18,7 @@ def index():
 def fetch_match_data(match_id, api_key, region):
     match_detail_url = f"https://{region}.api.riotgames.com/lol/match/v5/matches/{match_id}?api_key={api_key}"
     response = requests.get(match_detail_url)
+    time.sleep(0.05)
     return response.json()
 
 @main.route('/submit-data', methods=['POST'])
