@@ -16,6 +16,7 @@ def index():
 
 # Fetches the details for a specific match given match id
 def fetch_match_data(match_id, api_key, region):
+    retry = 1
     match_detail_url = f"https://{region}.api.riotgames.com/lol/match/v5/matches/{match_id}?api_key={api_key}"
     response = requests.get(match_detail_url)
     return response.json()
@@ -28,6 +29,7 @@ def submit_data():
     tagLine = data["tagline"]
     region = data["region"].lower()
     numMatches = data["num"]
+    headers = {}
 
     api_url = f"https://{region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}?api_key={api_key}"
 
@@ -38,7 +40,7 @@ def submit_data():
 
         # Fetches a list of match id's for a player given number of matches and player id
         match_id_url = f"https://{region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?start=0&count={numMatches}&api_key={api_key}"
-        match_id_response = requests.get(match_id_url)
+        match_id_response = requests.get(match_id_url, headers=headers)
         match_id_data = match_id_response.json()
 
         games = []
@@ -55,8 +57,7 @@ def submit_data():
 
                 if (count % 15 == 0):
                     time.sleep(1.01)
-                    
-                count = count + 1
+                count
                 future = executor.submit(fetch_match_data, match_id, api_key, region)
                 dict[future] = match_id
 
@@ -67,7 +68,7 @@ def submit_data():
                 try:    #In case the user runs out of api calls midway through calling each match
                     inGameOrder = individual_match_data["metadata"]["participants"].index(f"{puuid}")
                 except Exception as e:
-                    return jsonify({"status": "error", "message": individual_match_data["status"]["message"]}), individual_match_data["status"]["status_code"]
+                    return jsonify({"status": "error", "header": individual_match_data.headers, "message": individual_match_data["status"]["message"]}), individual_match_data["status"]["status_code"]
                 
                 player = individual_match_data["info"]["participants"][inGameOrder]
 
