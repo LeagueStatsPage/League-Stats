@@ -12,7 +12,7 @@ main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
-    return render_template('mastery.html')
+    return render_template('index.html')
 
 # Fetches the details for a specific match given match id
 def fetch_match_data(match_id, api_key, region):
